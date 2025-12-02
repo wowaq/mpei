@@ -1,5 +1,7 @@
 import streamlit as st
 
+from streamlit_pages.kurs import kurs
+
 
 def lab1():
     from raw_labs import lab1 as raw
@@ -22,6 +24,7 @@ def random_emoji():
 
 pg = st.navigation(
     [
+        st.Page(kurs, title="Курсовая работа", icon=random_emoji()),
         st.Page(lab1, title="Лабораторная работа №5", icon=random_emoji()),
         st.Page(lab2, title="Лабораторная работа №6", icon=random_emoji()),
     ]

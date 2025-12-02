@@ -2,14 +2,13 @@
 Приближение функций
 """
 
-from socketserver import DatagramRequestHandler
-
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 class Task1:
     """
+    # Задача 5.1
     Функция $y=f(x)$ задана таблицей значений в точках $x_0, x_1, \ldots, x_n$
 
     Используя метод наименьших квадратов(МНК), найти многочлен
@@ -20,7 +19,79 @@ class Task1:
     $$\sigma_m = \sqrt \frac{1}{n-m} \sum_{k=0}{(P_m(x_k) - y_k)^2$$
     """
 
-    pass
+    def __init__(self):
+        self.steps = [self.step1]
+        for step in self.steps:
+            step()
+
+    def step1(self):
+        """
+        1) Задаём векторы исходных данных:\\
+        `x` - вектор значений аргумента функции\\
+        `y` - вектор значений функции
+        """
+        self.x = np.array(
+            [
+                0,
+                0.375,
+                0.563,
+                0.75,
+                1.125,
+                1.313,
+                1.5,
+                1.69,
+                1.875,
+                2.063,
+                2.25,
+                2.438,
+                2.625,
+                2.813,
+                3,
+            ]
+        )
+        self.y = np.array(
+            [
+                4.568,
+                3.365,
+                2.810,
+                2.624,
+                0.674,
+                0.557,
+                0.384,
+                -0.566,
+                -1.44,
+                -1.696,
+                -1.91,
+                -2.819,
+                -3.625,
+                -3.941,
+                -4.367,
+            ]
+        )
+
+    def step2(self):
+        """
+        2.1) Составим программу реализующую построение многочленов\\
+        $$P_m,\\  m = 0, 1, 2, \\ldots $$\\
+        по методу наименьших квадратов
+
+        2.2) Вычислим соответствующие им значения $sigma_m$
+        """
+
+        def get_P(m):
+            x = self.x
+            y = self.y
+
+
+            coefs =
+            def P_m(x):
+                return np.sum([coefs * np.power(x, np.arange(m + 1))], axis=1)
+
+        self.get_P = get_P
 
 
 tasks = [Task1]
+import numpy as np
+
+t = np.zeros((3, 3))
+np.triu_indices(5, 1)
