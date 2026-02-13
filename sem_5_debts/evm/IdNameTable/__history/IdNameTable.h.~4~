@@ -1,0 +1,41 @@
+#ifndef IDNAMETABLE_H
+#define IDNAMETABLE_H
+
+struct IdName {
+    int id;
+    const char* name;
+};
+
+class IdNameTable {
+private:
+    IdName** table;
+    int count;
+    int capacity;
+    bool isSortedById;
+    bool isSortedByName;
+
+    void quickSortById(int left, int right);
+    void quickSortByName(int left, int right);
+    int partitionById(int left, int right);
+    int partitionByName(int left, int right);
+    static bool stringEqual(const char* a, const char* b);
+    static bool stringLess(const char* a, const char* b);
+
+public:
+    IdNameTable(int initialCapacity = 10);
+    ~IdNameTable();
+
+    void add(int id, const char* name);
+    void sortById();
+    void sortByName();
+    int binarySearchById(int id) const;
+    const char* getNameById(int id) const;
+    int binarySearchByName(const char* name) const;
+    int getIdByName(const char* name) const;
+    bool remove(int id);
+    void clear();
+    int getCount() const { return count; }
+    IdName* getElement(int index) const;
+};
+
+#endif

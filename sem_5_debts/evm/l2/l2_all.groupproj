@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{71A3F7EE-8A4A-4FCB-B3B0-28FA0AE38746}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="l2.cbproj">
+            <Dependencies>..\LexicalBlock\LexicalBlock.cbproj</Dependencies>
+        </Projects>
+        <Projects Include="..\LexicalBlock\LexicalBlock.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="l2" DependsOnTargets="LexicalBlock">
+        <MSBuild Projects="l2.cbproj"/>
+    </Target>
+    <Target Name="l2:Clean" DependsOnTargets="LexicalBlock:Clean">
+        <MSBuild Projects="l2.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="l2:Make" DependsOnTargets="LexicalBlock:Make">
+        <MSBuild Projects="l2.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="LexicalBlock">
+        <MSBuild Projects="..\LexicalBlock\LexicalBlock.cbproj"/>
+    </Target>
+    <Target Name="LexicalBlock:Clean">
+        <MSBuild Projects="..\LexicalBlock\LexicalBlock.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LexicalBlock:Make">
+        <MSBuild Projects="..\LexicalBlock\LexicalBlock.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="l2;LexicalBlock"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="l2:Clean;LexicalBlock:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="l2:Make;LexicalBlock:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{BD91D6E6-59B3-4066-9BCA-3D1EFB63853C}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="l3.cbproj">
+            <Dependencies>..\SyntaxAnalyzer\SyntaxAnalyzer.cbproj;..\LexicalBlock\LexicalBlock.cbproj</Dependencies>
+        </Projects>
+        <Projects Include="..\SyntaxAnalyzer\SyntaxAnalyzer.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\LexicalBlock\LexicalBlock.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="l3" DependsOnTargets="SyntaxAnalyzer;LexicalBlock">
+        <MSBuild Projects="l3.cbproj"/>
+    </Target>
+    <Target Name="l3:Clean" DependsOnTargets="SyntaxAnalyzer:Clean;LexicalBlock:Clean">
+        <MSBuild Projects="l3.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="l3:Make" DependsOnTargets="SyntaxAnalyzer:Make;LexicalBlock:Make">
+        <MSBuild Projects="l3.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="SyntaxAnalyzer">
+        <MSBuild Projects="..\SyntaxAnalyzer\SyntaxAnalyzer.cbproj"/>
+    </Target>
+    <Target Name="SyntaxAnalyzer:Clean">
+        <MSBuild Projects="..\SyntaxAnalyzer\SyntaxAnalyzer.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SyntaxAnalyzer:Make">
+        <MSBuild Projects="..\SyntaxAnalyzer\SyntaxAnalyzer.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="LexicalBlock">
+        <MSBuild Projects="..\LexicalBlock\LexicalBlock.cbproj"/>
+    </Target>
+    <Target Name="LexicalBlock:Clean">
+        <MSBuild Projects="..\LexicalBlock\LexicalBlock.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="LexicalBlock:Make">
+        <MSBuild Projects="..\LexicalBlock\LexicalBlock.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="l3;SyntaxAnalyzer;LexicalBlock"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="l3:Clean;SyntaxAnalyzer:Clean;LexicalBlock:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="l3:Make;SyntaxAnalyzer:Make;LexicalBlock:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -1,0 +1,50 @@
+#ifndef SYNTAXFORM_H
+#define SYNTAXFORM_H
+
+#include <Forms.hpp>
+#include <StdCtrls.hpp>
+#include <ComCtrls.hpp>
+#include <ExtCtrls.hpp>
+#include "D:\delete\tiger\mpei\evm\LexicalBlock\LexicalBlock.h"
+#include "D:\delete\tiger\mpei\evm\SyntaxAnalyzer\SyntaxAnalyzer.h"
+#include <System.Classes.hpp>
+#include <Vcl.Controls.hpp>
+#include <Vcl.Grids.hpp>
+
+class TMainForm : public TForm {
+    __published:
+        TPanel *PanelTop;
+        TMemo *MemoSource;
+        TGroupBox *GroupBoxTokens;
+        TStringGrid *GridTokens;
+        TGroupBox *GroupBoxParseTree;
+        TStringGrid *GridParseSteps;
+        TButton *ButtonLexical;
+        TButton *ButtonSyntactic;
+        TButton *ButtonLoadExample;
+        TButton *ButtonClear;
+        TStatusBar *StatusBar;
+
+        void __fastcall ButtonLexicalClick(TObject *Sender);
+        void __fastcall ButtonSyntacticClick(TObject *Sender);
+        void __fastcall ButtonLoadExampleClick(TObject *Sender);
+        void __fastcall ButtonClearClick(TObject *Sender);
+
+    private:
+        LexicalBlock* lexer;
+        SyntaxAnalyzer* parser;
+        Token* currentTokens;
+        int currentTokenCount;
+
+        void SetupGrids();
+        void DisplayTokens();
+        void DisplayParseHistory();
+        UnicodeString GetTokenName(int tokenType);
+        UnicodeString GetTokenClass(int classId);
+
+    public:
+		__fastcall TMainForm(TComponent* Owner);
+        __fastcall ~TMainForm();
+};
+
+#endif

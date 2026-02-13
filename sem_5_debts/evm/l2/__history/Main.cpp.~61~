@@ -1,0 +1,163 @@
+﻿#include <vcl.h>
+#pragma hdrstop
+#include <stdlib.h>
+#include "Main.h"
+#include "LexicalBlock.h"
+
+#pragma package(smart_init)
+#pragma resource "*.dfm"
+
+TMainForm *MainForm;
+
+__fastcall TMainForm::TMainForm(TComponent* Owner)
+    : TForm(Owner)
+{
+    lexer = new LexicalBlock();
+    SetupGrids();
+
+    Caption = L"Lexical Block";  // Add L prefix
+    Width = 900;
+    Height = 700;
+    Position = poScreenCenter;
+
+    MemoSource->Text = L"";  // Add L prefix
+    MemoSource->Font->Name = L"Courier New";  // Add L prefix
+    MemoSource->Font->Size = 10;
+
+    StatusBar->SimpleText = L"Ready";  // Add L prefix
+}
+
+__fastcall TMainForm::~TMainForm()
+{
+    delete lexer;
+}
+
+void __fastcall TMainForm::SetupGrids()
+{
+    GridLexems->ColCount = 4;
+    GridLexems->RowCount = 1;
+    GridLexems->FixedRows = 0;
+    GridLexems->Cells[0][0] = L"#";  // Add L prefix
+    GridLexems->Cells[1][0] = L"Lexem";  // Add L prefix
+    GridLexems->Cells[2][0] = L"Class";  // Add L prefix
+    GridLexems->Cells[3][0] = L"Position";  // Add L prefix
+    GridLexems->ColWidths[0] = 40;
+    GridLexems->ColWidths[1] = 150;
+    GridLexems->ColWidths[2] = 120;
+    GridLexems->ColWidths[3] = 80;
+
+    GridIdentifiers->ColCount = 4;
+    GridIdentifiers->RowCount = 1;
+    GridIdentifiers->FixedRows = 0;
+    GridIdentifiers->Cells[0][0] = L"#";  // Add L prefix
+    GridIdentifiers->Cells[1][0] = L"Identifier";  // Add L prefix
+    GridIdentifiers->Cells[2][0] = L"Type";  // Add L prefix
+    GridIdentifiers->Cells[3][0] = L"Used";  // Add L prefix
+    GridIdentifiers->ColWidths[0] = 40;
+    GridIdentifiers->ColWidths[1] = 150;
+    GridIdentifiers->ColWidths[2] = 100;
+    GridIdentifiers->ColWidths[3] = 80;
+
+    GridConstants->ColCount = 4;
+    GridConstants->RowCount = 1;
+    GridConstants->FixedRows = 0;
+    GridConstants->Cells[0][0] = L"#";  // Add L prefix
+    GridConstants->Cells[1][0] = L"Constant";  // Add L prefix
+    GridConstants->Cells[2][0] = L"Value";  // Add L prefix
+    GridConstants->Cells[3][0] = L"Used";  // Add L prefix
+    GridConstants->ColWidths[0] = 40;
+    GridConstants->ColWidths[1] = 100;
+    GridConstants->ColWidths[2] = 80;
+    GridConstants->ColWidths[3] = 80;
+}
+
+UnicodeString TMainForm::GetClassName(int classId)
+{
+    switch(classId) {
+        case 1: return L"Identifier";  // Add L prefix
+        case 2: return L"Keyword";  // Add L prefix
+        case 3: return L"Integer";  // Add L prefix
+        case 4: return L"Delimiter/Operator";  // Add L prefix
+        default: return L"Unknown";  // Add L prefix
+    }
+}
+
+void __fastcall TMainForm::ButtonLoadExampleClick(TObject *Sender)
+{
+    MemoSource->Text =
+        L"d=2*3+1;\n"
+        L"a=3+2*d;\n"
+        L"c=2*d+3*a;\n"
+        L"ЕСЛИ(d>c)\n"
+        L"    a=d*2;\n"
+        L"ИНАЧЕ\n"
+        L"    a=d;\n"
+        L"КОНЕЦ_ЕСЛИ\n"
+        L"i=1;\n"
+        L"ПОКА(i<10)\n"
+        L"    i=i+1;\n"
+        L"КОНЕЦ_ПОКА\n";
+    StatusBar->SimpleText = L"Example program loaded";  // Add L prefix
+}
+
+void __fastcall TMainForm::ButtonClearClick(TObject *Sender)
+{
+    MemoSource->Text = L"";  // Add L prefix
+    GridLexems->RowCount = 1;
+    GridIdentifiers->RowCount = 1;
+    GridConstants->RowCount = 1;
+    StatusBar->SimpleText = L"Cleared";  // Add L prefix
+}
+
+void __fastcall TMainForm::ButtonAnalyzeClick(TObject *Sender)
+{
+    if (MemoSource->Text.IsEmpty()) {
+        ShowMessage(L"Enter source code for analysis");  // Add L prefix
+        return;
+    }
+
+    const wchar_t* sourceCode = MemoSource->Text.c_str();
+    lexer->analyze(sourceCode);
+
+    DisplayResults();
+
+    StatusBar->SimpleText = L"Analysis complete. Lexems found: " +  // Add L prefix
+                           UnicodeString(lexer->getLexemCount());
+}
+
+void TMainForm::DisplayResults()
+{
+    GridLexems->RowCount = lexer->getLexemCount() + 1;
+
+    for (int i = 0; i < lexer->getLexemCount(); i++) {
+        Lexem* lex = lexer->getLexem(i);
+
+        GridLexems->Cells[0][i + 1] = i + 1;
+        GridLexems->Cells[1][i + 1] = UnicodeString(lex->value);
+        GridLexems->Cells[2][i + 1] = GetClassName(lex->classId);
+        GridLexems->Cells[3][i + 1] = UnicodeString(lex->line) + L":" +  // Add L prefix
+                                      UnicodeString(lex->position);
+    }
+
+    GridIdentifiers->RowCount = lexer->getIdentifierCount() + 1;
+
+    for (int i = 0; i < lexer->getIdentifierCount(); i++) {
+        TableEntry* entry = lexer->getIdentifier(i);
+
+        GridIdentifiers->Cells[0][i + 1] = i + 1;
+        GridIdentifiers->Cells[1][i + 1] = UnicodeString(entry->name);
+        GridIdentifiers->Cells[2][i + 1] = L"Variable";  // Add L prefix
+        GridIdentifiers->Cells[3][i + 1] = entry->isUsed ? L"Yes" : L"No";  // Add L prefix
+    }
+
+    GridConstants->RowCount = lexer->getConstantCount() + 1;
+
+    for (int i = 0; i < lexer->getConstantCount(); i++) {
+        TableEntry* entry = lexer->getConstant(i);
+
+        GridConstants->Cells[0][i + 1] = i + 1;
+        GridConstants->Cells[1][i + 1] = UnicodeString(entry->name);
+        GridConstants->Cells[2][i + 1] = entry->intValue;
+        GridConstants->Cells[3][i + 1] = entry->isUsed ? L"Yes" : L"No";  // Add L prefix
+    }
+}

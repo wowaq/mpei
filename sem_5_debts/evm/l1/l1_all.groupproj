@@ -1,0 +1,48 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{91892AD6-69B5-44BF-97F8-E7809045E4A0}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\IdNameTable\IdNameTable.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="l1.cbproj">
+            <Dependencies>..\IdNameTable\IdNameTable.cbproj</Dependencies>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="IdNameTable">
+        <MSBuild Projects="..\IdNameTable\IdNameTable.cbproj"/>
+    </Target>
+    <Target Name="IdNameTable:Clean">
+        <MSBuild Projects="..\IdNameTable\IdNameTable.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IdNameTable:Make">
+        <MSBuild Projects="..\IdNameTable\IdNameTable.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="l1" DependsOnTargets="IdNameTable">
+        <MSBuild Projects="l1.cbproj"/>
+    </Target>
+    <Target Name="l1:Clean" DependsOnTargets="IdNameTable:Clean">
+        <MSBuild Projects="l1.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="l1:Make" DependsOnTargets="IdNameTable:Make">
+        <MSBuild Projects="l1.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="IdNameTable;l1"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="IdNameTable:Clean;l1:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="IdNameTable:Make;l1:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

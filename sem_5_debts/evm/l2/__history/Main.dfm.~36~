@@ -1,0 +1,157 @@
+object MainForm: TMainForm
+  Left = 0
+  Top = 0
+  Caption = 'MainForm'
+  ClientHeight = 700
+  ClientWidth = 900
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -25
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poScreenCenter
+  TextHeight = 30
+  object PanelTop: TPanel
+    Left = 0
+    Top = 0
+    Width = 900
+    Height = 50
+    Align = alTop
+    Caption = 'Lexical Analyzer'
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 0
+  end
+  object MemoSource: TMemo
+    Left = 10
+    Top = 60
+    Width = 880
+    Height = 150
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -12
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+    ScrollBars = ssVertical
+    TabOrder = 1
+  end
+  object GroupBoxLexems: TGroupBox
+    Left = 10
+    Top = 220
+    Width = 880
+    Height = 150
+    Caption = 'Lexem Table'
+    TabOrder = 2
+    object GridLexems: TStringGrid
+      Left = 10
+      Top = 20
+      Width = 860
+      Height = 120
+      ColCount = 4
+      DefaultRowHeight = 30
+      FixedCols = 0
+      RowCount = 1
+      FixedRows = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -25
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object GroupBoxIdentifiers: TGroupBox
+    Left = 10
+    Top = 380
+    Width = 435
+    Height = 200
+    Caption = 'Identifier Table'
+    TabOrder = 3
+    object GridIdentifiers: TStringGrid
+      Left = 10
+      Top = 20
+      Width = 415
+      Height = 170
+      ColCount = 4
+      DefaultRowHeight = 30
+      FixedCols = 0
+      RowCount = 1
+      FixedRows = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -25
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object GroupBoxConstants: TGroupBox
+    Left = 455
+    Top = 380
+    Width = 435
+    Height = 200
+    Caption = 'Constant Table'
+    TabOrder = 4
+    object GridConstants: TStringGrid
+      Left = 10
+      Top = 20
+      Width = 415
+      Height = 170
+      ColCount = 4
+      DefaultRowHeight = 30
+      FixedCols = 0
+      RowCount = 1
+      FixedRows = 0
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -25
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object ButtonAnalyze: TButton
+    Left = 10
+    Top = 590
+    Width = 100
+    Height = 30
+    Caption = 'Analyze'
+    TabOrder = 5
+    OnClick = ButtonAnalyzeClick
+  end
+  object ButtonClear: TButton
+    Left = 120
+    Top = 590
+    Width = 100
+    Height = 30
+    Caption = 'Clear'
+    TabOrder = 6
+    OnClick = ButtonClearClick
+  end
+  object ButtonLoadExample: TButton
+    Left = 230
+    Top = 590
+    Width = 150
+    Height = 30
+    Caption = 'Load Example'
+    TabOrder = 7
+    OnClick = ButtonLoadExampleClick
+  end
+  object StatusBar: TStatusBar
+    Left = 0
+    Top = 680
+    Width = 900
+    Height = 20
+    Panels = <>
+    SimplePanel = True
+  end
+end

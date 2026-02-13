@@ -1,0 +1,447 @@
+﻿#include "SyntaxAnalyzer.h"
+
+#define NT_PROGRAM           100
+#define NT_STATEMENT_LIST    101
+#define NT_STATEMENT         102
+#define NT_ASSIGNMENT        103
+#define NT_CONDITION         104
+#define NT_LOOP              105
+#define NT_ARITH_EXPR        106
+#define NT_ARITH_TAIL        107
+#define NT_TERM              108
+#define NT_TERM_TAIL         109
+#define NT_FACTOR            110
+#define NT_LOG_EXPR          111
+#define NT_LOG_OP            112
+
+#define STACK_END           0
+
+SyntaxAnalyzer::SyntaxAnalyzer() {
+    tokenCount = 0;
+    tokens = 0;
+    currentPos = 0;
+    stackTop = -1;
+    errorFlag = false;
+    errorMessage[0] = '\0';
+
+    historyCapacity = 500;
+    historyCount = 0;
+    parseHistory = new ParseStep[historyCapacity];
+}
+
+SyntaxAnalyzer::~SyntaxAnalyzer() {
+    delete[] parseHistory;
+}
+
+void SyntaxAnalyzer::push(int symbol) {
+    if (stackTop < STACK_SIZE - 1) {
+        stack[++stackTop] = symbol;
+    }
+}
+
+int SyntaxAnalyzer::pop() {
+    if (stackTop >= 0) {
+        return stack[stackTop--];
+    }
+    return 0;
+}
+
+int SyntaxAnalyzer::top() {
+    if (stackTop >= 0) {
+        return stack[stackTop];
+    }
+    return 0;
+}
+
+void SyntaxAnalyzer::expandHistory() {
+    int newCapacity = historyCapacity * 2;
+    ParseStep* newHistory = new ParseStep[newCapacity];
+
+    for (int i = 0; i < historyCount; i++) {
+        newHistory[i] = parseHistory[i];
+    }
+
+    delete[] parseHistory;
+    parseHistory = newHistory;
+    historyCapacity = newCapacity;
+}
+
+void SyntaxAnalyzer::addHistoryStep(const char* action, bool isError) {
+    if (historyCount >= historyCapacity) {
+        expandHistory();
+    }
+
+    parseHistory[historyCount].stepNumber = historyCount + 1;
+
+    for (int i = 0; i <= stackTop; i++) {
+        parseHistory[historyCount].stack[i] = stack[i];
+    }
+    parseHistory[historyCount].stackTop = stackTop;
+
+    if (currentPos < tokenCount) {
+        parseHistory[historyCount].currentToken = tokens[currentPos].type;
+    } else {
+        parseHistory[historyCount].currentToken = TOKEN_EOF;
+    }
+
+    int i = 0;
+    while (action[i] && i < 255) {
+        parseHistory[historyCount].action[i] = action[i];
+        i++;
+    }
+    parseHistory[historyCount].action[i] = '\0';
+
+    parseHistory[historyCount].isError = isError;
+
+    historyCount++;
+}
+
+bool SyntaxAnalyzer::isTerminal(int symbol) {
+    return symbol > 0 && symbol < 100;
+}
+
+bool SyntaxAnalyzer::isNonTerminal(int symbol) {
+    return symbol >= 100 && symbol < 200;
+}
+
+const char* SyntaxAnalyzer::getSymbolName(int symbol) {
+    switch(symbol) {
+        case TOKEN_IDENTIFIER: return "id";
+        case TOKEN_INTEGER: return "int";
+        case TOKEN_IF: return "IF";
+        case TOKEN_ELSE: return "ELSE";
+        case TOKEN_END_IF: return "END_IF";
+        case TOKEN_WHILE: return "WHILE";
+        case TOKEN_END_WHILE: return "END_WHILE";
+        case TOKEN_ASSIGN: return "=";
+        case TOKEN_PLUS: return "+";
+        case TOKEN_MULTIPLY: return "*";
+        case TOKEN_POWER: return "^";
+        case TOKEN_SEMICOLON: return ";";
+        case TOKEN_LPAREN: return "(";
+        case TOKEN_RPAREN: return ")";
+        case TOKEN_LESS: return "<";
+        case TOKEN_GREATER: return ">";
+        case TOKEN_EQUAL: return "=";
+        case TOKEN_EOF: return "$";
+        case NT_PROGRAM: return "PROGRAM";
+        case NT_STATEMENT_LIST: return "STATEMENT_LIST";
+        case NT_STATEMENT: return "STATEMENT";
+        case NT_ASSIGNMENT: return "ASSIGNMENT";
+        case NT_CONDITION: return "CONDITION";
+        case NT_LOOP: return "LOOP";
+        case NT_ARITH_EXPR: return "ARITH_EXPR";
+        case NT_ARITH_TAIL: return "ARITH_TAIL";
+        case NT_TERM: return "TERM";
+        case NT_TERM_TAIL: return "TERM_TAIL";
+        case NT_FACTOR: return "FACTOR";
+        case NT_LOG_EXPR: return "LOG_EXPR";
+        case NT_LOG_OP: return "LOG_OP";
+        case STACK_END: return "$";
+        default: return "UNKNOWN";
+    }
+}
+
+void SyntaxAnalyzer::setTokens(Token* tokenList, int count) {
+    tokens = tokenList;
+    tokenCount = count;
+    currentPos = 0;
+}
+
+void SyntaxAnalyzer::clear() {
+    currentPos = 0;
+    stackTop = -1;
+    errorFlag = false;
+    historyCount = 0;
+    errorMessage[0] = '\0';
+}
+
+bool SyntaxAnalyzer::parse() {
+    clear();
+
+    push(STACK_END);
+    push(NT_PROGRAM);
+
+    addHistoryStep("Initialize stack with $ and PROGRAM");
+
+    while (!errorFlag && stackTop >= 0) {
+        int topSymbol = top();
+        int currentToken;
+
+        if (currentPos < tokenCount) {
+            currentToken = tokens[currentPos].type;
+        } else {
+            currentToken = TOKEN_EOF;
+        }
+
+        if (topSymbol == STACK_END) {
+            if (currentToken == TOKEN_EOF) {
+                pop();
+                addHistoryStep("Accept: End of input reached");
+                return true;
+            } else {
+                errorFlag = true;
+                char msg[256];
+                int i = 0;
+                const char* text = "Unexpected token after end of program";
+                while (text[i]) {
+                    errorMessage[i] = text[i];
+                    i++;
+                }
+                errorMessage[i] = '\0';
+                addHistoryStep("Error: Unexpected token after end", true);
+                return false;
+            }
+        }
+
+        if (isTerminal(topSymbol)) {
+            if (topSymbol == currentToken) {
+                pop();
+                currentPos++;
+                addHistoryStep(getSymbolName(topSymbol));
+            } else {
+                errorFlag = true;
+                char msg[256];
+                int i = 0;
+                const char* text1 = "Expected: ";
+                const char* text2 = getSymbolName(topSymbol);
+                const char* text3 = ", Found: ";
+                const char* text4 = getSymbolName(currentToken);
+
+                while (*text1) errorMessage[i++] = *text1++;
+                while (*text2) errorMessage[i++] = *text2++;
+                while (*text3) errorMessage[i++] = *text3++;
+                while (*text4) errorMessage[i++] = *text4++;
+                errorMessage[i] = '\0';
+
+                addHistoryStep("Error: Terminal mismatch", true);
+                return false;
+            }
+        }
+        else if (isNonTerminal(topSymbol)) {
+            pop();
+
+            switch(topSymbol) {
+                case NT_PROGRAM:
+                    push(NT_STATEMENT_LIST);
+                    addHistoryStep("PROGRAM -> STATEMENT_LIST");
+                    break;
+
+                case NT_STATEMENT_LIST:
+                    if (currentToken == TOKEN_IDENTIFIER ||
+                        currentToken == TOKEN_IF ||
+                        currentToken == TOKEN_WHILE) {
+                        push(NT_STATEMENT_LIST);
+                        push(NT_STATEMENT);
+                        addHistoryStep("STATEMENT_LIST -> STATEMENT STATEMENT_LIST");
+                    }
+                    else if (currentToken == TOKEN_ELSE ||
+							 currentToken == TOKEN_END_IF ||
+                             currentToken == TOKEN_END_WHILE ||
+                             currentToken == TOKEN_EOF) {
+                        addHistoryStep("STATEMENT_LIST -> ε");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Unexpected token in STATEMENT_LIST", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_STATEMENT:
+                    if (currentToken == TOKEN_IDENTIFIER) {
+                        push(NT_ASSIGNMENT);
+                        addHistoryStep("STATEMENT -> ASSIGNMENT");
+                    }
+                    else if (currentToken == TOKEN_IF) {
+                        push(NT_CONDITION);
+                        addHistoryStep("STATEMENT -> CONDITION");
+                    }
+                    else if (currentToken == TOKEN_WHILE) {
+                        push(NT_LOOP);
+                        addHistoryStep("STATEMENT -> LOOP");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Unexpected token in STATEMENT", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_ASSIGNMENT:
+                    if (currentToken == TOKEN_IDENTIFIER) {
+                        push(TOKEN_SEMICOLON);
+                        push(NT_ARITH_EXPR);
+                        push(TOKEN_ASSIGN);
+                        push(TOKEN_IDENTIFIER);
+                        addHistoryStep("ASSIGNMENT -> id = ARITH_EXPR ;");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Expected identifier in ASSIGNMENT", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_CONDITION:
+                    if (currentToken == TOKEN_IF) {
+                        push(TOKEN_END_IF);
+                        push(NT_STATEMENT_LIST);
+                        push(TOKEN_ELSE);
+                        push(NT_STATEMENT_LIST);
+                        push(TOKEN_RPAREN);
+                        push(NT_LOG_EXPR);
+                        push(TOKEN_LPAREN);
+                        push(TOKEN_IF);
+                        addHistoryStep("CONDITION -> IF ( LOG_EXPR ) STATEMENT_LIST ELSE STATEMENT_LIST END_IF");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Expected IF in CONDITION", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_LOOP:
+                    if (currentToken == TOKEN_WHILE) {
+                        push(TOKEN_END_WHILE);
+                        push(NT_STATEMENT_LIST);
+                        push(TOKEN_RPAREN);
+                        push(NT_LOG_EXPR);
+                        push(TOKEN_LPAREN);
+                        push(TOKEN_WHILE);
+                        addHistoryStep("LOOP -> WHILE ( LOG_EXPR ) STATEMENT_LIST END_WHILE");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Expected WHILE in LOOP", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_ARITH_EXPR:
+                    if (currentToken == TOKEN_IDENTIFIER || currentToken == TOKEN_INTEGER) {
+                        push(NT_ARITH_TAIL);
+                        push(NT_TERM);
+                        addHistoryStep("ARITH_EXPR -> TERM ARITH_TAIL");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Expected identifier or integer in ARITH_EXPR", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_ARITH_TAIL:
+                    if (currentToken == TOKEN_PLUS) {
+                        push(NT_ARITH_TAIL);
+                        push(NT_TERM);
+                        push(TOKEN_PLUS);
+                        addHistoryStep("ARITH_TAIL -> + TERM ARITH_TAIL");
+                    }
+                    else {
+                        addHistoryStep("ARITH_TAIL -> ε");
+                    }
+                    break;
+
+                case NT_TERM:
+                    if (currentToken == TOKEN_IDENTIFIER || currentToken == TOKEN_INTEGER) {
+                        push(NT_TERM_TAIL);
+                        push(NT_FACTOR);
+                        addHistoryStep("TERM -> FACTOR TERM_TAIL");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Expected factor in TERM", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_TERM_TAIL:
+                    if (currentToken == TOKEN_MULTIPLY) {
+                        push(NT_TERM_TAIL);
+                        push(NT_FACTOR);
+                        push(TOKEN_MULTIPLY);
+                        addHistoryStep("TERM_TAIL -> * FACTOR TERM_TAIL");
+                    }
+                    else if (currentToken == TOKEN_POWER) {
+                        push(NT_TERM_TAIL);
+                        push(NT_FACTOR);
+                        push(TOKEN_POWER);
+                        addHistoryStep("TERM_TAIL -> ^ FACTOR TERM_TAIL");
+                    }
+                    else {
+                        addHistoryStep("TERM_TAIL -> ε");
+                    }
+                    break;
+
+                case NT_FACTOR:
+                    if (currentToken == TOKEN_IDENTIFIER) {
+                        push(TOKEN_IDENTIFIER);
+                        addHistoryStep("FACTOR -> id");
+                    }
+                    else if (currentToken == TOKEN_INTEGER) {
+                        push(TOKEN_INTEGER);
+                        addHistoryStep("FACTOR -> int");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Expected identifier or integer in FACTOR", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_LOG_EXPR:
+                    if (currentToken == TOKEN_IDENTIFIER || currentToken == TOKEN_INTEGER) {
+                        push(NT_FACTOR);
+                        push(NT_LOG_OP);
+                        push(NT_FACTOR);
+                        addHistoryStep("LOG_EXPR -> FACTOR LOG_OP FACTOR");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Expected factor in LOG_EXPR", true);
+                        return false;
+                    }
+                    break;
+
+                case NT_LOG_OP:
+                    if (currentToken == TOKEN_LESS) {
+                        push(TOKEN_LESS);
+                        addHistoryStep("LOG_OP -> <");
+                    }
+                    else if (currentToken == TOKEN_GREATER) {
+                        push(TOKEN_GREATER);
+                        addHistoryStep("LOG_OP -> >");
+                    }
+                    else if (currentToken == TOKEN_EQUAL) {
+                        push(TOKEN_EQUAL);
+                        addHistoryStep("LOG_OP -> =");
+                    }
+                    else {
+                        errorFlag = true;
+                        addHistoryStep("Error: Expected logical operator", true);
+                        return false;
+                    }
+                    break;
+
+                default:
+                    errorFlag = true;
+                    addHistoryStep("Error: Unknown non-terminal", true);
+                    return false;
+            }
+        }
+        else {
+            errorFlag = true;
+            addHistoryStep("Error: Unknown symbol on stack", true);
+            return false;
+        }
+    }
+
+    if (!errorFlag && stackTop < 0 && currentPos >= tokenCount) {
+        addHistoryStep("Accept: Empty stack and end of input");
+        return true;
+    }
+
+    return false;
+}

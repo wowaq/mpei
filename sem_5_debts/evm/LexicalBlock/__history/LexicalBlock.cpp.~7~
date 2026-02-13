@@ -1,0 +1,398 @@
+﻿
+
+
+#pragma hdrstop
+
+#include "LexicalBlock.h"
+
+
+#pragma package(smart_init)
+
+bool LexicalBlock::strEqual(const wchar_t* a, const wchar_t* b) {
+    if (a == b) return true;
+    if (!a || !b) return false;
+	while (*a && *b) {
+        if (*a != *b) return false;
+        a++; b++;
+    }
+    return *a == *b;
+}
+
+void LexicalBlock::strCopy(wchar_t* dest, const wchar_t* src) {
+    if (!dest || !src) return;
+    while (*src) {
+        *dest = *src;
+        dest++; src++;
+    }
+	*dest = '\0';
+}
+
+int LexicalBlock::strLen(const wchar_t* str) {
+    int len = 0;
+    while (str && str[len]) len++;
+    return len;
+}
+
+wchar_t* LexicalBlock::strDup(const wchar_t* src) {
+    if (!src) return 0;
+    int len = strLen(src);
+    wchar_t* dest = new wchar_t[len + 1];
+    for (int i = 0; i < len; i++) {
+        dest[i] = src[i];
+    }
+    dest[len] = '\0';
+    return dest;
+}
+
+void LexicalBlock::intToStr(int value, wchar_t* buffer) {
+    if (value == 0) {
+        buffer[0] = '0';
+        buffer[1] = '\0';
+        return;
+    }
+
+    wchar_t temp[20];
+    int i = 0;
+    int val = value;
+
+    if (val < 0) {
+        buffer[0] = '-';
+        buffer++;
+        val = -val;
+    }
+
+    while (val > 0) {
+        temp[i++] = (wchar_t)('0' + (val % 10));
+        val /= 10;
+    }
+
+    for (int j = 0; j < i; j++) {
+        buffer[j] = temp[i - j - 1];
+    }
+    buffer[i] = '\0';
+}
+
+bool LexicalBlock::isDigit(wchar_t c) {
+    return c >= '0' && c <= '9';
+}
+
+bool LexicalBlock::isLetter(wchar_t c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+           (c >= 'А' && c <= 'Я') || (c >= 'а' && c <= 'я');
+}
+
+bool LexicalBlock::isWhitespace(wchar_t c) {
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+LexicalBlock::LexicalBlock() {
+	keywords[0] = L"ЕСЛИ";
+	keywords[1] = L"ИНАЧЕ";
+	keywords[2] = L"КОНЕЦ_ЕСЛИ";
+	keywords[3] = L"ПОКА";
+	keywords[4] = L"КОНЕЦ_ПОКА";
+    keywordCount = 5;
+
+	delimiters[0] = L";";
+	delimiters[1] = L",";
+	delimiters[2] = L"(";
+	delimiters[3] = L")";
+	delimiters[4] = L"=";
+	delimiters[5] = L"+";
+	delimiters[6] = L"*";
+	delimiters[7] = L"^";
+	delimiters[8] = L"<";
+	delimiters[9] = L">";
+    delimiterCount = 10;
+
+    identifierCapacity = 10;
+    identifierCount = 0;
+    identifierTable = new TableEntry*[identifierCapacity];
+    for (int i = 0; i < identifierCapacity; i++) {
+        identifierTable[i] = 0;
+    }
+
+    constantCapacity = 10;
+    constantCount = 0;
+    constantTable = new TableEntry*[constantCapacity];
+    for (int i = 0; i < constantCapacity; i++) {
+        constantTable[i] = 0;
+    }
+
+    lexemCapacity = 100;
+    lexemCount = 0;
+    lexems = new Lexem[lexemCapacity];
+}
+
+LexicalBlock::~LexicalBlock() {
+    for (int i = 0; i < identifierCount; i++) {
+        delete[] identifierTable[i]->name;
+        delete identifierTable[i];
+    }
+    delete[] identifierTable;
+
+    for (int i = 0; i < constantCount; i++) {
+        delete[] constantTable[i]->name;
+        delete constantTable[i];
+    }
+    delete[] constantTable;
+
+    delete[] lexems;
+}
+
+void LexicalBlock::expandIdentifierTable() {
+    int newCapacity = identifierCapacity * 2;
+    TableEntry** newTable = new TableEntry*[newCapacity];
+
+    for (int i = 0; i < identifierCount; i++) {
+        newTable[i] = identifierTable[i];
+    }
+    for (int i = identifierCount; i < newCapacity; i++) {
+        newTable[i] = 0;
+    }
+
+    delete[] identifierTable;
+    identifierTable = newTable;
+    identifierCapacity = newCapacity;
+}
+
+void LexicalBlock::expandConstantTable() {
+    int newCapacity = constantCapacity * 2;
+    TableEntry** newTable = new TableEntry*[newCapacity];
+
+    for (int i = 0; i < constantCount; i++) {
+        newTable[i] = constantTable[i];
+    }
+    for (int i = constantCount; i < newCapacity; i++) {
+        newTable[i] = 0;
+    }
+
+    delete[] constantTable;
+    constantTable = newTable;
+    constantCapacity = newCapacity;
+}
+
+void LexicalBlock::expandLexemTable() {
+    int newCapacity = lexemCapacity * 2;
+    Lexem* newLexems = new Lexem[newCapacity];
+
+    for (int i = 0; i < lexemCount; i++) {
+        newLexems[i] = lexems[i];
+    }
+
+    delete[] lexems;
+    lexems = newLexems;
+    lexemCapacity = newCapacity;
+}
+
+int LexicalBlock::findIdentifier(const wchar_t* name) {
+    for (int i = 0; i < identifierCount; i++) {
+        if (strEqual(identifierTable[i]->name, name)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int LexicalBlock::findConstant(int value) {
+    for (int i = 0; i < constantCount; i++) {
+        if (constantTable[i]->intValue == value) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int LexicalBlock::addIdentifier(const wchar_t* name) {
+    int index = findIdentifier(name);
+    if (index != -1) {
+        identifierTable[index]->isUsed = true;
+        return index;
+    }
+
+    if (identifierCount >= identifierCapacity) {
+        expandIdentifierTable();
+    }
+
+    TableEntry* newEntry = new TableEntry;
+    newEntry->name = strDup(name);
+    newEntry->classId = LEXEM_CLASS_IDENTIFIER;
+    newEntry->intValue = 0;
+    newEntry->isUsed = true;
+
+    identifierTable[identifierCount] = newEntry;
+    identifierCount++;
+
+    return identifierCount - 1;
+}
+
+int LexicalBlock::addConstant(int value) {
+    int index = findConstant(value);
+    if (index != -1) {
+        constantTable[index]->isUsed = true;
+        return index;
+    }
+
+    if (constantCount >= constantCapacity) {
+        expandConstantTable();
+    }
+
+    TableEntry* newEntry = new TableEntry;
+
+    wchar_t buffer[20];
+    intToStr(value, buffer);
+    newEntry->name = strDup(buffer);
+    newEntry->classId = LEXEM_CLASS_INTEGER;
+    newEntry->intValue = value;
+    newEntry->isUsed = true;
+
+    constantTable[constantCount] = newEntry;
+    constantCount++;
+
+    return constantCount - 1;
+}
+
+void LexicalBlock::clear() {
+    for (int i = 0; i < identifierCount; i++) {
+        delete[] identifierTable[i]->name;
+        delete identifierTable[i];
+        identifierTable[i] = 0;
+    }
+    identifierCount = 0;
+
+    for (int i = 0; i < constantCount; i++) {
+        delete[] constantTable[i]->name;
+        delete constantTable[i];
+        constantTable[i] = 0;
+    }
+    constantCount = 0;
+
+    lexemCount = 0;
+}
+
+void LexicalBlock::analyze(const wchar_t* sourceCode) {
+    clear();
+
+    int i = 0;
+    int line = 1;
+    int position = 1;
+
+    while (sourceCode[i] != '\0') {
+        if (isWhitespace(sourceCode[i])) {
+            if (sourceCode[i] == '\n') {
+                line++;
+                position = 1;
+            } else {
+                position++;
+            }
+            i++;
+            continue;
+        }
+
+        bool foundDelimiter = false;
+        for (int d = 0; d < delimiterCount; d++) {
+            const wchar_t* delim = delimiters[d];
+            int j = 0;
+            while (delim[j] != '\0' && sourceCode[i + j] == delim[j]) {
+                j++;
+            }
+            if (delim[j] == '\0') {
+                if (lexemCount >= lexemCapacity) {
+                    expandLexemTable();
+                }
+
+                lexems[lexemCount].classId = LEXEM_CLASS_DELIMITER;
+                strCopy(lexems[lexemCount].value, delim);
+                lexems[lexemCount].line = line;
+                lexems[lexemCount].position = position;
+
+                lexemCount++;
+                i += j;
+                position += j;
+                foundDelimiter = true;
+                break;
+            }
+        }
+        if (foundDelimiter) continue;
+
+        if (isDigit(sourceCode[i])) {
+            int start = i;
+            int value = 0;
+            while (isDigit(sourceCode[i])) {
+                value = value * 10 + (sourceCode[i] - '0');
+                i++;
+            }
+
+            if (lexemCount >= lexemCapacity) {
+                expandLexemTable();
+            }
+
+            lexems[lexemCount].classId = LEXEM_CLASS_INTEGER;
+            intToStr(value, lexems[lexemCount].value);
+            lexems[lexemCount].intValue = value;
+            lexems[lexemCount].line = line;
+            lexems[lexemCount].position = position;
+
+            lexemCount++;
+            position += (i - start);
+
+            addConstant(value);
+            continue;
+        }
+
+        if (isLetter(sourceCode[i]) || sourceCode[i] == '_') {
+            int start = i;
+			while (isLetter(sourceCode[i]) || isDigit(sourceCode[i]) || sourceCode[i] == '_') {
+                i++;
+            }
+
+            wchar_t word[256];
+            int len = i - start;
+            for (int w = 0; w < len; w++) {
+                word[w] = sourceCode[start + w];
+            }
+            word[len] = '\0';
+
+            if (lexemCount >= lexemCapacity) {
+                expandLexemTable();
+            }
+
+            bool isKeyword = false;
+            for (int k = 0; k < keywordCount; k++) {
+                if (strEqual(word, keywords[k])) {
+                    isKeyword = true;
+                    break;
+                }
+            }
+
+            if (isKeyword) {
+                lexems[lexemCount].classId = LEXEM_CLASS_KEYWORD;
+            } else {
+                lexems[lexemCount].classId = LEXEM_CLASS_IDENTIFIER;
+                addIdentifier(word);
+            }
+
+            strCopy(lexems[lexemCount].value, word);
+            lexems[lexemCount].line = line;
+            lexems[lexemCount].position = position;
+
+            lexemCount++;
+            position += (i - start);
+            continue;
+        }
+
+        if (lexemCount >= lexemCapacity) {
+            expandLexemTable();
+        }
+
+        lexems[lexemCount].classId = LEXEM_CLASS_UNKNOWN;
+        lexems[lexemCount].value[0] = sourceCode[i];
+        lexems[lexemCount].value[1] = '\0';
+        lexems[lexemCount].line = line;
+        lexems[lexemCount].position = position;
+
+        lexemCount++;
+        i++;
+        position++;
+    }
+}

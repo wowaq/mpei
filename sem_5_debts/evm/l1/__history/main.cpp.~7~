@@ -1,0 +1,161 @@
+#include <iostream>
+#include <conio.h>
+using namespace std;
+#include "IdNameTable.h"
+
+void displayTable(const IdNameTable &table)
+{
+    cout << "\n+--------------------------------------+\n";
+    cout << "| ID\t| Name\t\t\t\t|\n";
+    cout << "+--------------------------------------+\n";
+
+    int count = table.getCount();
+    if (count == 0) {
+        cout << "|           Table is empty          |\n";
+    } else {
+        for (int i = 0; i < count; i++) {
+            IdName* element = table.getElement(i);
+            cout << "| " << element->id << "\t| " << element->name;
+
+            int len = 0;
+            const char* str = element->name;
+            while (*str) {
+                len++;
+                str++;
+            }
+
+            int spaces = 24 - len;
+            for (int s = 0; s < spaces; s++)
+                cout << " ";
+            cout << "|\n";
+        }
+    }
+    cout << "+--------------------------------------+\n";
+}
+
+void clearScreen()
+{
+    clrscr();
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+{
+    IdNameTable table;
+    int choice, id;
+    char name[100];
+    const char* result;
+    int i;
+
+    do {
+        clearScreen();
+
+        cout << "========================================\n";
+        cout << "      ID-NAME TABLE MANAGEMENT\n";
+        cout << "========================================\n";
+        cout << "1. Add element\n";
+        cout << "2. Remove element by ID\n";
+        cout << "3. Sort by ID\n";
+        cout << "4. Sort by Name\n";
+        cout << "5. Search by ID (binary)\n";
+        cout << "6. Search by Name (binary)\n";
+        cout << "7. Clear all\n";
+        cout << "0. Exit\n";
+        cout << "========================================\n";
+        cout << "Choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Enter ID: ";
+                cin >> id;
+                cout << "Enter Name: ";
+                i = 0;
+                do {
+                    name[i] = getche();
+                    if (name[i] == '\r') {
+                        name[i] = '\0';
+                        break;
+                    }
+                    i++;
+                } while (i < 99);
+                cout << "\n";
+                table.add(id, name);
+                cout << "\nElement added!\n";
+                break;
+
+            case 2:
+                cout << "Enter ID to remove: ";
+                cin >> id;
+                if (table.remove(id)) {
+                    cout << "\nElement removed!\n";
+                } else {
+                    cout << "\nID not found!\n";
+                }
+                break;
+
+            case 3:
+                table.sortById();
+                cout << "\nTable sorted by ID!\n";
+                break;
+
+            case 4:
+                table.sortByName();
+                cout << "\nTable sorted by Name!\n";
+                break;
+
+            case 5:
+                cout << "Enter ID to search: ";
+                cin >> id;
+                result = table.getNameById(id);
+                if (result) {
+                    cout << "\nFound: " << result << "\n";
+                } else {
+                    cout << "\nID not found! Try sorting first.\n";
+                }
+                break;
+
+            case 6:
+                cout << "Enter Name to search: ";
+                i = 0;
+                do {
+                    name[i] = getche();
+                    if (name[i] == '\r') {
+                        name[i] = '\0';
+                        break;
+                    }
+                    i++;
+                } while (i < 99);
+                cout << "\n";
+                id = table.getIdByName(name);
+                if (id != -1) {
+                    cout << "\nFound ID: " << id << "\n";
+                } else {
+                    cout << "\nName not found! Try sorting first.\n";
+                }
+                break;
+
+            case 7:
+                table.clear();
+                cout << "\nTable cleared!\n";
+                break;
+
+            case 0:
+                cout << "\nExiting...\n";
+                break;
+
+            default:
+                cout << "\nInvalid choice!\n";
+        }
+
+        displayTable(table);
+
+        if (choice != 0) {
+            cout << "\nPress any key to continue...";
+            getch();
+        }
+
+    } while (choice != 0);
+
+    return 0;
+}
+

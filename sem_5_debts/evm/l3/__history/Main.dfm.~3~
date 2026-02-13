@@ -1,0 +1,133 @@
+object SyntaxForm: TSyntaxForm
+  Left = 0
+  Top = 0
+  Caption = 'SyntaxForm'
+  ClientHeight = 750
+  ClientWidth = 1000
+  Position = poScreenCenter
+  object PanelTop: TPanel
+    Left = 0
+    Top = 0
+    Width = 1000
+    Height = 50
+    Align = alTop
+    Caption = 'Syntactic Analyzer - MP-Automaton for Variant 2 (Brylev Y.S.)'
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Arial'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 0
+  end
+  object MemoSource: TMemo
+    Left = 10
+    Top = 60
+    Width = 980
+    Height = 120
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'Courier New'
+    Font.Style = []
+    ParentFont = False
+    ScrollBars = ssVertical
+    TabOrder = 1
+  end
+  object GroupBoxTokens: TGroupBox
+    Left = 10
+    Top = 190
+    Width = 980
+    Height = 150
+    Caption = 'Token List (from Lexical Block)'
+    TabOrder = 2
+    object GridTokens: TStringGrid
+      Left = 10
+      Top = 20
+      Width = 960
+      Height = 120
+      ColCount = 5
+      DefaultRowHeight = 20
+      FixedCols = 0
+      RowCount = 1
+      FixedRows = 1
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object GroupBoxParseTree: TGroupBox
+    Left = 10
+    Top = 350
+    Width = 980
+    Height = 290
+    Caption = 'MP-Automaton Parse Steps'
+    TabOrder = 3
+    object GridParseSteps: TStringGrid
+      Left = 10
+      Top = 20
+      Width = 960
+      Height = 260
+      ColCount = 5
+      DefaultRowHeight = 20
+      FixedCols = 0
+      RowCount = 1
+      FixedRows = 1
+      Font.Charset = RUSSIAN_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Arial'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+    end
+  end
+  object ButtonLexical: TButton
+    Left = 10
+    Top = 650
+    Width = 120
+    Height = 30
+    Caption = '1. Lexical Analysis'
+    TabOrder = 4
+    OnClick = ButtonLexicalClick
+  end
+  object ButtonSyntactic: TButton
+    Left = 140
+    Top = 650
+    Width = 120
+    Height = 30
+    Caption = '2. Syntactic Analysis'
+    TabOrder = 5
+    OnClick = ButtonSyntacticClick
+  end
+  object ButtonLoadExample: TButton
+    Left = 270
+    Top = 650
+    Width = 150
+    Height = 30
+    Caption = 'Load Example'
+    TabOrder = 6
+    OnClick = ButtonLoadExampleClick
+  end
+  object ButtonClear: TButton
+    Left = 430
+    Top = 650
+    Width = 100
+    Height = 30
+    Caption = 'Clear'
+    TabOrder = 7
+    OnClick = ButtonClearClick
+  end
+  object StatusBar: TStatusBar
+    Left = 0
+    Top = 730
+    Width = 1000
+    Height = 20
+    Panels = <>
+    SimplePanel = True
+  end
+end
