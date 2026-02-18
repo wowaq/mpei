@@ -2,8 +2,8 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = 'MainForm'
-  ClientHeight = 700
-  ClientWidth = 900
+  ClientHeight = 852
+  ClientWidth = 1195
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -15,7 +15,7 @@ object MainForm: TMainForm
   object PanelTop: TPanel
     Left = 0
     Top = 0
-    Width = 900
+    Width = 1195
     Height = 50
     Align = alTop
     Caption = 'Lexical Analyzer'
@@ -26,12 +26,13 @@ object MainForm: TMainForm
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 0
+    ExplicitWidth = 900
   end
   object MemoSource: TMemo
-    Left = 10
-    Top = 60
-    Width = 880
-    Height = 150
+    Left = 8
+    Top = 68
+    Width = 320
+    Height = 549
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -12
@@ -42,10 +43,10 @@ object MainForm: TMainForm
     TabOrder = 1
   end
   object GroupBoxLexems: TGroupBox
-    Left = 10
-    Top = 220
-    Width = 880
-    Height = 180
+    Left = 340
+    Top = 68
+    Width = 389
+    Height = 541
     Caption = 'Lexem Table'
     DefaultHeaderFont = False
     HeaderFont.Charset = DEFAULT_CHARSET
@@ -55,10 +56,10 @@ object MainForm: TMainForm
     HeaderFont.Style = []
     TabOrder = 2
     object GridLexems: TStringGrid
-      Left = 3
-      Top = 30
-      Width = 860
-      Height = 120
+      Left = 4
+      Top = 37
+      Width = 382
+      Height = 500
       ColCount = 4
       DefaultRowHeight = 30
       FixedCols = 0
@@ -74,10 +75,10 @@ object MainForm: TMainForm
     end
   end
   object GroupBoxIdentifiers: TGroupBox
-    Left = 10
-    Top = 376
-    Width = 435
-    Height = 204
+    Left = 761
+    Top = 68
+    Width = 349
+    Height = 188
     Caption = 'Identifier Table'
     TabOrder = 3
     object GridIdentifiers: TStringGrid
@@ -100,16 +101,16 @@ object MainForm: TMainForm
     end
   end
   object GroupBoxConstants: TGroupBox
-    Left = 455
-    Top = 380
-    Width = 435
+    Left = 764
+    Top = 254
+    Width = 349
     Height = 200
     Caption = 'Constant Table'
     TabOrder = 4
     object GridConstants: TStringGrid
-      Left = 3
+      Left = 11
       Top = 42
-      Width = 415
+      Width = 335
       Height = 170
       ColCount = 4
       DefaultRowHeight = 30
@@ -154,10 +155,12 @@ object MainForm: TMainForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 680
-    Width = 900
+    Top = 832
+    Width = 1195
     Height = 20
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 680
+    ExplicitWidth = 900
   end
 end

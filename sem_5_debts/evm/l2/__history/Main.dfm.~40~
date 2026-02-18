@@ -2,20 +2,20 @@ object MainForm: TMainForm
   Left = 0
   Top = 0
   Caption = 'MainForm'
-  ClientHeight = 700
-  ClientWidth = 900
+  ClientHeight = 747
+  ClientWidth = 956
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -25
   Font.Name = 'Segoe UI'
   Font.Style = []
   Position = poScreenCenter
-  TextHeight = 15
+  TextHeight = 35
   object PanelTop: TPanel
     Left = 0
     Top = 0
-    Width = 900
+    Width = 956
     Height = 50
     Align = alTop
     Caption = 'Lexical Analyzer'
@@ -26,15 +26,16 @@ object MainForm: TMainForm
     Font.Style = [fsBold]
     ParentFont = False
     TabOrder = 0
+    ExplicitWidth = 900
   end
   object MemoSource: TMemo
-    Left = 10
-    Top = 60
-    Width = 880
-    Height = 150
-    Font.Charset = RUSSIAN_CHARSET
+    Left = 8
+    Top = 68
+    Width = 320
+    Height = 549
+    Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -67
+    Font.Height = -12
     Font.Name = 'Arial'
     Font.Style = []
     ParentFont = False
@@ -42,25 +43,31 @@ object MainForm: TMainForm
     TabOrder = 1
   end
   object GroupBoxLexems: TGroupBox
-    Left = 10
-    Top = 220
-    Width = 880
-    Height = 150
+    Left = 340
+    Top = 68
+    Width = 271
+    Height = 541
     Caption = 'Lexem Table'
+    DefaultHeaderFont = False
+    HeaderFont.Charset = DEFAULT_CHARSET
+    HeaderFont.Color = clWindowText
+    HeaderFont.Height = -20
+    HeaderFont.Name = 'Segoe UI'
+    HeaderFont.Style = []
     TabOrder = 2
     object GridLexems: TStringGrid
-      Left = 10
-      Top = 20
-      Width = 860
-      Height = 120
+      Left = 4
+      Top = 37
+      Width = 264
+      Height = 500
       ColCount = 4
-      DefaultRowHeight = 20
+      DefaultRowHeight = 30
       FixedCols = 0
       RowCount = 1
       FixedRows = 0
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clWindowText
-      Font.Height = -20
+      Font.Height = -25
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
@@ -68,25 +75,25 @@ object MainForm: TMainForm
     end
   end
   object GroupBoxIdentifiers: TGroupBox
-    Left = 10
-    Top = 380
-    Width = 435
-    Height = 200
+    Left = 617
+    Top = 68
+    Width = 283
+    Height = 188
     Caption = 'Identifier Table'
     TabOrder = 3
     object GridIdentifiers: TStringGrid
-      Left = 10
-      Top = 20
+      Left = 17
+      Top = 46
       Width = 415
       Height = 170
       ColCount = 4
-      DefaultRowHeight = 20
+      DefaultRowHeight = 30
       FixedCols = 0
       RowCount = 1
       FixedRows = 0
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -25
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
@@ -94,25 +101,25 @@ object MainForm: TMainForm
     end
   end
   object GroupBoxConstants: TGroupBox
-    Left = 455
-    Top = 380
-    Width = 435
+    Left = 623
+    Top = 262
+    Width = 280
     Height = 200
     Caption = 'Constant Table'
     TabOrder = 4
     object GridConstants: TStringGrid
-      Left = 10
-      Top = 20
-      Width = 415
+      Left = 11
+      Top = 42
+      Width = 274
       Height = 170
       ColCount = 4
-      DefaultRowHeight = 20
+      DefaultRowHeight = 30
       FixedCols = 0
       RowCount = 1
       FixedRows = 0
       Font.Charset = RUSSIAN_CHARSET
       Font.Color = clWindowText
-      Font.Height = -11
+      Font.Height = -25
       Font.Name = 'Arial'
       Font.Style = []
       ParentFont = False
@@ -120,8 +127,8 @@ object MainForm: TMainForm
     end
   end
   object ButtonAnalyze: TButton
-    Left = 10
-    Top = 590
+    Left = 8
+    Top = 644
     Width = 100
     Height = 30
     Caption = 'Analyze'
@@ -129,8 +136,8 @@ object MainForm: TMainForm
     OnClick = ButtonAnalyzeClick
   end
   object ButtonClear: TButton
-    Left = 120
-    Top = 590
+    Left = 114
+    Top = 644
     Width = 100
     Height = 30
     Caption = 'Clear'
@@ -139,8 +146,8 @@ object MainForm: TMainForm
   end
   object ButtonLoadExample: TButton
     Left = 230
-    Top = 590
-    Width = 150
+    Top = 644
+    Width = 171
     Height = 30
     Caption = 'Load Example'
     TabOrder = 7
@@ -148,10 +155,12 @@ object MainForm: TMainForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 680
-    Width = 900
+    Top = 727
+    Width = 956
     Height = 20
     Panels = <>
     SimplePanel = True
+    ExplicitTop = 680
+    ExplicitWidth = 900
   end
 end

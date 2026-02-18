@@ -282,7 +282,7 @@ void LexicalBlock::analyze(const wchar_t* sourceCode) {
             if (sourceCode[i] == L'\n') {
                 line++;
                 position = 1;
-            } else {
+			} else {
                 position++;
             }
             i++;
@@ -357,17 +357,17 @@ void LexicalBlock::analyze(const wchar_t* sourceCode) {
                 expandLexemTable();
             }
 
-            bool isKeyword = false;
+			bool isKeyword = false;
             for (int k = 0; k < keywordCount; k++) {
-                if (strEqual(word, keywords[k])) {
-                    isKeyword = true;
-                    break;
+				if (strEqual(word, keywords[k])) {
+					isKeyword = true;
+					break;
                 }
             }
 
             if (isKeyword) {
                 lexems[lexemCount].classId = LEXEM_CLASS_KEYWORD;
-            } else {
+			} else {
                 lexems[lexemCount].classId = LEXEM_CLASS_IDENTIFIER;
                 addIdentifier(word);
             }
